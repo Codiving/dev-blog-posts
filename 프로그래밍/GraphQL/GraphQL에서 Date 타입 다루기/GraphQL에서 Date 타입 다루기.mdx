@@ -1,0 +1,84 @@
+# GraphQL에서 Date 타입 다루기
+
+GraphQL에서 `Date` 타입을 사용할 때 문제가 발생할 수 있습니다. 서버에서 넘어온 값의 타입은 `Date`여야 하지만, 실제로는 `string` 타입으로 처리되기 때문입니다. 이는 GraphQL에서 `Date` 타입을 기본으로 제공하지 않기 때문에 발생하는 문제입니다. 이 문제를 해결하고, 깔끔하게 처리하는 방법을 알아보겠습니다.
+
+## GraphQL에서 `Date` 타입 문제
+
+```graphql
+scalar Date
+```
+
+`Date` 타입은 GraphQL의 내장 타입이 아니므로, 이를 사용하려면 커스텀 스칼라 타입을 정의해야 합니다. 따라서 서버와 클라이언트 간 데이터 전송 시, `Date` 값은 `string` 타입으로 전달됩니다. 그러나 타입스크립트를 사용할 때는 `Date` 타입으로 표시되므로 혼동을 일으킬 수 있습니다. 다음은 문제가 발생할 수 있는 예시입니다.
+
+```ts
+const date = useQuery(GET_USER_BIRTH_DATE);
+console.log(typeof date);
+```
+
+`date`에 커서를 올리면 `Date` 타입으로 표시되지만, 실제로 출력하면 `string` 타입입니다. 이로 인해 `Date` 객체에만 사용할 수 있는 메서드를 호출하면 오류가 발생합니다. 이 문제를 해결하는 방법으로는 받은 `date` 값을 사용할 때마다 `new Date(date)`로 변환하는 방법이 있지만, 이는 비효율적입니다.
+
+```ts
+const date = useQuery(GET_USER_BIRTH_DATE);
+console.log(new Date(date));
+```
+
+## GraphQL에서 `Date` 타입 변환 미들웨어 구현
+
+효율적인 방법은, 서버에서 데이터를 받을 때 `string` 타입을 자동으로 `Date` 타입으로 변환하는 미들웨어를 구현하는 것입니다. 이렇게 하면, 데이터 변환을 별도로 신경 쓰지 않고 `Date` 객체로 바로 사용할 수 있습니다.
+
+### 변환이 필요한 쿼리와 필드 선언
+
+변환이 필요한 쿼리와 필드를 미리 선언해두면, 필요한 필드만 변환할 수 있습니다.
+
+```js
+const NEEDED_DATE_CONVERT = {
+  GetUserBirthDate: ["getUserBirthDate.birthDate"],
+  GetComment: ["getComment.info.createdAt", "getComment.info.updatedAt"],
+};
+
+const QUERY_LIST = Object.keys(NEEDED_DATE_CONVERT);
+```
+
+위 코드에서는 `GetUserBirthDate` 쿼리에서 `getUserBirthDate.birthDate`와 `GetComment` 쿼리에서 `getComment.info.createdAt`, `getComment.info.updatedAt` 필드를 `Date` 타입으로 변환해야 한다고 선언합니다.
+
+### 변환 미들웨어 구현
+
+변환이 필요한 필드에 대해서만 `new Date`를 적용하는 미들웨어를 구현합니다. 이때 객체를 `flatten`하고, 변환 후 `unflatten`하는 작업이 필요합니다.
+
+```js
+import { flatten, unflatten } from "flat";
+
+const convertDateMiddleware = new ApolloLink((operation, forward) => {
+  if (QUERY_LIST.includes(operation.operationName)) {
+    return forward(operation).map((response) => {
+      if (response.data) {
+        const flattenData = flatten(response.data);
+        const values = NEEDED_DATE_CONVERT[operation.operationName];
+
+        values.forEach((key) => {
+          if (flattenData.hasOwnProperty(key)) {
+            flattenData[key] = new Date(flattenData[key]);
+          }
+        });
+
+        const unflattenData = unflatten(flattenData);
+
+        if (unflattenData) {
+          response.data = unflattenData;
+        }
+      }
+      return response;
+    });
+  }
+
+  return forward(operation);
+});
+```
+
+이 미들웨어는 `string`으로 넘어온 `Date` 값을 자동으로 `Date` 객체로 변환해줍니다. 이제 `useQuery`나 `useLazyQuery`를 사용할 때, 별도로 형변환을 하지 않고 바로 `Date` 객체로 사용할 수 있습니다.
+
+## 결론
+
+이 방법을 사용하면, 서버에서 받은 `string` 타입인 `Date` 값을 `Date` 객체로 변환하여 효율적으로 사용할 수 있습니다.
+
+<br />더 나은 방법이 있다면 의견을 남겨주세요.
