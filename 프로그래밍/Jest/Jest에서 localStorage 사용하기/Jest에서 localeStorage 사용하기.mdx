@@ -1,0 +1,58 @@
+---
+title: "Jest에서 localeStorage 사용하기"
+date: "2025-04-15"
+keywords:
+  [
+    "Jest",
+    "Jest localStorage",
+    "Jest sessionStorage",
+    "Jest 로컬스토리지",
+    "Jest 세션스토리지",
+  ]
+description: Jest에서 로컬스토리지, 세션스토리지 사용하는 방법
+thumbnail: thumb.png
+---
+
+# Jest에서 localeStorage 사용하기
+
+자바스크립트로 테스트 코드를 작성할 때 Jest를 많이 사용합니다. `Jest`는 자바스크립트 테스트 환경으로 널리 사용되지만, 실행 환경이 브라우저가 아닌 `Node.js`이기 때문에 `localStorage`나 `sessionStorage`를 사용하는 코드에서 다음과 같은 오류가 발생할 수 있습니다.
+
+```js
+ReferenceError: localStorage is not defined
+```
+
+이는 `Node.js` 환경에는 브라우저의 `Web API`인 `localStorage`와 `sessionStorage`가 기본적으로 존재하지 않기 때문입니다.
+
+## 해결 방법
+
+이 문제는 [jest-localstorage-mock](https://www.npmjs.com/package/jest-localstorage-mock) 패키지를 사용하면 간단하게 해결할 수 있습니다. 이 패키지는 `Jest` 테스트 환경에서 `localStorage`와 `sessionStorage`를 자동으로 `Mock` 처리해줍니다.
+
+### 1. 패키지 설치
+
+```js
+npm install --save-dev jest-localstorage-mock
+```
+
+### 2. Jest 설정 파일 수정
+
+설치 후, `jest.config.js` 또는 `jest.config.ts` 파일에 `setupFiles` 옵션을 추가합니다. 이 설정을 통해 테스트 실행 전에 자동으로 `mocking`이 적용됩니다.
+
+```js
+module.exports = {
+  // 기타 설정들
+  setupFiles: ["jest-localstorage-mock"],
+};
+```
+
+### 3. 테스트 실행
+
+이제 `localStorage`와 `sessionStorage`를 사용하는 코드도 문제 없이 테스트할 수 있습니다.
+
+```js
+localStorage.setItem("token", "abc123");
+expect(localStorage.getItem("token")).toBe("abc123");
+```
+
+## 결론
+
+`Jest` 환경에서 `localStorage`나 `sessionStorage`를 사용할 경우 오류가 발생할 수 있지만, `jest-localstorage-mock`을 활용하면 손쉽게 해결할 수 있습니다.
