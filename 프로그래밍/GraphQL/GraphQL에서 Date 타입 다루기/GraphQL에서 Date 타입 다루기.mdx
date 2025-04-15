@@ -1,6 +1,22 @@
+---
+title: "GraphQL에서 Date 타입 다루기"
+date: "2025-04-15"
+keywords:
+  [
+    "GraphQL",
+    "GraphQL Date",
+    "GraphQL Date type",
+    "GraphQL middleware",
+    "GraphQL Date string",
+    "GraphQL Date 다루기",
+  ]
+description: GraphQL에서 Date 타입 다루는 방법.
+thumbnail: thumb.png
+---
+
 # GraphQL에서 Date 타입 다루기
 
-GraphQL에서 `Date` 타입을 사용할 때 문제가 발생할 수 있습니다. 서버에서 넘어온 값의 타입은 `Date`여야 하지만, 실제로는 `string` 타입으로 처리되기 때문입니다. 이는 GraphQL에서 `Date` 타입을 기본으로 제공하지 않기 때문에 발생하는 문제입니다. 이 문제를 해결하고, 깔끔하게 처리하는 방법을 알아보겠습니다.
+`GraphQL`에서는 `Date` 타입을 기본으로 제공하지 않기 때문에, 서버에서 `Date` 값을 받아도 실제로는 `string`으로 처리되는 문제가 발생합니다. 특히 `TypeScript` 환경에서는 이로 인해 타입 혼란과 런타임 오류가 발생할 수 있습니다. 이 문제를 깔끔하게 해결하는 방법을 소개합니다.
 
 ## GraphQL에서 `Date` 타입 문제
 
@@ -8,56 +24,78 @@ GraphQL에서 `Date` 타입을 사용할 때 문제가 발생할 수 있습니�
 scalar Date
 ```
 
-`Date` 타입은 GraphQL의 내장 타입이 아니므로, 이를 사용하려면 커스텀 스칼라 타입을 정의해야 합니다. 따라서 서버와 클라이언트 간 데이터 전송 시, `Date` 값은 `string` 타입으로 전달됩니다. 그러나 타입스크립트를 사용할 때는 `Date` 타입으로 표시되므로 혼동을 일으킬 수 있습니다. 다음은 문제가 발생할 수 있는 예시입니다.
+`GraphQL`에는 `Date`가 내장 타입이 아니므로, **커스텀 스칼라**로 정의해야 합니다. 이 때문에 클라이언트와 서버 간에 날짜 값이 `string` 형태로 전달되고, 타입스크립트에서는 이를 `Date` 타입으로 간주해 혼란이 생깁니다.
 
 ```ts
 const date = useQuery(GET_USER_BIRTH_DATE);
 console.log(typeof date);
 ```
 
-`date`에 커서를 올리면 `Date` 타입으로 표시되지만, 실제로 출력하면 `string` 타입입니다. 이로 인해 `Date` 객체에만 사용할 수 있는 메서드를 호출하면 오류가 발생합니다. 이 문제를 해결하는 방법으로는 받은 `date` 값을 사용할 때마다 `new Date(date)`로 변환하는 방법이 있지만, 이는 비효율적입니다.
+타입스크립트 상으로는 `Date`처럼 보이지만 실제로는 `string`이며, 그대로 `Date` 메서드를 사용하면 오류가 발생합니다.
 
 ```ts
 const date = useQuery(GET_USER_BIRTH_DATE);
 console.log(new Date(date));
 ```
 
+매번 `new Date()`로 변환하여 사용하면 되는데 이는 번거롭고 비효율적입니다.
+
 ## GraphQL에서 `Date` 타입 변환 미들웨어 구현
 
-효율적인 방법은, 서버에서 데이터를 받을 때 `string` 타입을 자동으로 `Date` 타입으로 변환하는 미들웨어를 구현하는 것입니다. 이렇게 하면, 데이터 변환을 별도로 신경 쓰지 않고 `Date` 객체로 바로 사용할 수 있습니다.
+서버로부터 응답받은 데이터를 자동으로 `Date` 객체로 변환하는 미들웨어를 구현하면 문제를 해결할 수 있습니다. 이렇게 하면 클라이언트에서는 별도 처리 없이 `Date` 메서드를 사용할 수 있습니다.
 
 ### 변환이 필요한 쿼리와 필드 선언
 
-변환이 필요한 쿼리와 필드를 미리 선언해두면, 필요한 필드만 변환할 수 있습니다.
+먼저, 어떤 쿼리의 어떤 필드를 `Date`로 변환할지 정의합니다.
 
 ```js
 const NEEDED_DATE_CONVERT = {
   GetUserBirthDate: ["getUserBirthDate.birthDate"],
   GetComment: ["getComment.info.createdAt", "getComment.info.updatedAt"],
+  PaginateUser: ["paginateUser.docs.${index}.birthDate"],
 };
 
 const QUERY_LIST = Object.keys(NEEDED_DATE_CONVERT);
 ```
 
-위 코드에서는 `GetUserBirthDate` 쿼리에서 `getUserBirthDate.birthDate`와 `GetComment` 쿼리에서 `getComment.info.createdAt`, `getComment.info.updatedAt` 필드를 `Date` 타입으로 변환해야 한다고 선언합니다.
+배열 형태의 응답(docs)은 `${index}`를 사용해 모든 인덱스를 처리할 수 있도록 패턴을 정의합니다.
 
 ### 변환 미들웨어 구현
 
-변환이 필요한 필드에 대해서만 `new Date`를 적용하는 미들웨어를 구현합니다. 이때 객체를 `flatten`하고, 변환 후 `unflatten`하는 작업이 필요합니다.
+데이터를 **평탄화(flatten)** 한 후, 지정한 필드를 `Date`로 변환하고 다시 원래 구조로 **복원(unflatten)** 합니다. 해당 작업에서는 `flat` 라이브러리를 사용하기 때문에 설치가 필요합니다.
+
+<br />
+
+미들웨어 코드는 간단합니다.
 
 ```js
 import { flatten, unflatten } from "flat";
 
 const convertDateMiddleware = new ApolloLink((operation, forward) => {
-  if (QUERY_LIST.includes(operation.operationName)) {
+  if (DATE_OPERATION_LIST.includes(operation.operationName)) {
     return forward(operation).map((response) => {
       if (response.data) {
-        const flattenData = flatten(response.data);
-        const values = NEEDED_DATE_CONVERT[operation.operationName];
+        const flattenData: Record<string, any> = flatten(response.data);
+        const values = DATE_CONVERT_QUERY[operation.operationName];
 
-        values.forEach((key) => {
-          if (flattenData.hasOwnProperty(key)) {
-            flattenData[key] = new Date(flattenData[key]);
+        values.forEach((pattern) => {
+          // 패턴에 ${index}가 포함되어 있으면 처리
+          if (pattern.includes("${index}")) {
+            // 정규 표현식으로 index 부분이 숫자인 경우 찾기
+            const regex = new RegExp(pattern.replace("${index}", "(\\d+)"));
+
+            Object.keys(flattenData).forEach((flatKey) => {
+              if (regex.test(flatKey) && flattenData[flatKey]) {
+                flattenData[flatKey] = new Date(flattenData[flatKey]);
+              }
+            });
+          } else {
+            // 일반적인 키 변환
+            Object.keys(flattenData).forEach((flatKey) => {
+              if (flatKey === pattern && flattenData[flatKey]) {
+                flattenData[flatKey] = new Date(flattenData[flatKey]);
+              }
+            });
           }
         });
 
@@ -75,10 +113,10 @@ const convertDateMiddleware = new ApolloLink((operation, forward) => {
 });
 ```
 
-이 미들웨어는 `string`으로 넘어온 `Date` 값을 자동으로 `Date` 객체로 변환해줍니다. 이제 `useQuery`나 `useLazyQuery`를 사용할 때, 별도로 형변환을 하지 않고 바로 `Date` 객체로 사용할 수 있습니다.
+`${index}`를 **정규 표현식**으로 처리해 배열 내 항목까지 자동 변환하도록 구현했습니다.
 
 ## 결론
 
-이 방법을 사용하면, 서버에서 받은 `string` 타입인 `Date` 값을 `Date` 객체로 변환하여 효율적으로 사용할 수 있습니다.
+이 미들웨어를 사용하면, 서버에서 `string`으로 전달된 날짜 값을 클라이언트에서 자동으로 `Date` 객체로 변환해 사용할 수 있습니다. 이제 `useQuery`나 `useLazyQuery`를 사용할 때 별도로 날짜를 파싱하지 않아도 되므로, 코드가 훨씬 깔끔하고 안전해집니다.
 
 <br />더 나은 방법이 있다면 의견을 남겨주세요.
