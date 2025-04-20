@@ -1,0 +1,76 @@
+---
+title: "Next.js에서 redirect 설정하기"
+date: "2025-04-15"
+keywords:
+  [
+    "NextJS",
+    "NextJS redirect",
+    "NextJS redirect permanent",
+    "NextJS redirect 301",
+    "NextJS redirect 307",
+  ]
+description: NextJS에서 redirect 사용하기
+thumbnail: thumb.png
+---
+
+# Next.js에서 redirect 설정하기
+
+웹사이트를 운영하다 보면 특정 URL을 새로운 URL로 변경하거나, 일시적으로 다른 페이지로 이동시켜야 하는 경우가 있습니다.
+
+- `/user/info` → `/user/information`으로 블로그 url 구조를 변경한 경우
+- `/login` → `/login2`으로 로그인 페이지 점검으로 인해 임시 이동이 필요한 경우
+
+이처럼 특정 URL을 자동으로 다른 URL로 리디렉트하는 방법을 알아보겠습니다.
+
+## Next.js의 `redirects` 설정 사용하기
+
+프론트엔드 코드에서 `push()`, `redirect()` 등을 이용해 리디렉트를 구현할 수도 있지만, Next.js에서는 `next.config.js`(또는 `next.config.ts`) 파일에서 `redirects` 속성을 활용해 간편하게 설정할 수 있습니다.
+
+```js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  redirects: async () => [
+    {
+      source: "/user/info",
+      destination: "/user/information",
+      permanent: true, // 301 영구 리디렉트
+    },
+    {
+      source: "/login",
+      destination: "/login2",
+      permanent: false, // 307 임시 리디렉트
+    },
+  ],
+};
+
+module.exports = nextConfig;
+```
+
+위와 같이 설정하면 `/user/info`로 접속하면 `/user/information`으로, `/login`으로 접속하면 `/login2`로 자동 이동됩니다.
+
+### 영구 리디렉트 (301)
+
+`permanent: true`로 설정하면 **기존 URL을 새로운 URL로 완전히 변경**하겠다는 의미입니다. 이 방식은 SEO에도 영향을 미칩니다.
+
+- 기존 URL이 쌓아온 검색 엔진 데이터를 새로운 URL로 승계할 수 있음
+- 브라우저가 리디렉트를 캐싱하여 서버 요청을 줄일 수 있음
+- 사용자가 기존 URL에 접속하더라도 새로운 URL로 자동 이동됨
+
+### 임시 리디렉트 (307)
+
+`permanent: false`로 설정하면 **기존 URL은 유지한 채, 일시적으로 새로운 URL로 이동**시킵니다.
+
+- 브라우저가 캐싱하지 않음 → 사용자가 다시 방문하면 원래 URL을 유지
+- 서버에 매번 요청을 보내므로 최신 상태를 반영할 수 있음
+- 일시적인 점검, 특정 이벤트 진행 시 유용함
+
+## 결론
+
+Next.js에서는 `next.config.js`의 `redirect` 속성을 활용해 간단하게 리디렉트를 설정할 수 있습니다.
+
+- URL 변경이 영구적이라면 **영구 리디렉트(301)** 를 사용
+- 임시로 URL을 변경해야 한다면 **임시 리디렉트(307)** 를 사용
+
+## 참고문헌
+
+- [NextJS Redirect 문서 - 노링크](https://nextjs.org/docs/app/api-reference/config/next-config-js/redirects)
