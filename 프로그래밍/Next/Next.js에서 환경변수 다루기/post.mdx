@@ -49,14 +49,14 @@ const key2 = process.env.key || "";
 
 ### 유니언 타입이지만 추론 불가
 
-```ts caption="Copy"
+```ts title="TS"
 type Country = "Korean" | "Japan" | "China";
 const country = process.env.country;
 ```
 
 `country` 값이 반드시 `"Korea" | "Japan" | "China"` 중 하나여야 한다고 해도, 타입스크립트는 이를 추론하지 못합니다.
 
-```ts caption="Copy"
+```ts title="TS"
 const country1 = process.env.country as Country;
 
 const country2 = process.env.country;
