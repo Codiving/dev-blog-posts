@@ -21,20 +21,20 @@ thumbnail: thumb.png
 
 ## GraphQL에서 `Date` 타입 문제
 
-```graphql
+```graphql title="GraphQL"
 scalar Date
 ```
 
 `GraphQL`에는 `Date`가 내장 타입이 아니므로, **커스텀 스칼라**로 정의해야 합니다. 이 때문에 클라이언트와 서버 간에 날짜 값이 `string` 형태로 전달되고, 타입스크립트에서는 이를 `Date` 타입으로 간주해 혼란이 생깁니다.
 
-```ts
+```ts title="TS"
 const date = useQuery(GET_USER_BIRTH_DATE);
 console.log(typeof date);
 ```
 
 타입스크립트 상으로는 `Date`처럼 보이지만 실제로는 `string`이며, 그대로 `Date` 메서드를 사용하면 오류가 발생합니다.
 
-```ts
+```ts title="TS"
 const date = useQuery(GET_USER_BIRTH_DATE);
 console.log(new Date(date));
 ```
@@ -49,7 +49,7 @@ console.log(new Date(date));
 
 먼저, 어떤 쿼리의 어떤 필드를 `Date`로 변환할지 정의합니다.
 
-```js
+```ts title="TS"
 const NEEDED_DATE_CONVERT = {
   GetUserBirthDate: ["getUserBirthDate.birthDate"],
   GetComment: ["getComment.info.createdAt", "getComment.info.updatedAt"],
@@ -69,7 +69,7 @@ const QUERY_LIST = Object.keys(NEEDED_DATE_CONVERT);
 
 미들웨어 코드는 간단합니다.
 
-```js
+```ts title="TS"
 import { flatten, unflatten } from "flat";
 
 const convertDateMiddleware = new ApolloLink((operation, forward) => {
