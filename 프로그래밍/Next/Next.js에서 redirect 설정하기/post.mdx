@@ -27,7 +27,7 @@ thumbnail: thumb.png
 
 프론트엔드 코드에서 `push()`, `redirect()` 등을 이용해 리디렉트를 구현할 수도 있지만, Next.js에서는 `next.config.js`(또는 `next.config.ts`) 파일에서 `redirects` 속성을 활용해 간편하게 설정할 수 있습니다.
 
-```js
+```js title="next.config.ts"
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   redirects: async () => [
@@ -74,4 +74,4 @@ Next.js에서는 `next.config.js`의 `redirect` 속성을 활용해 간단하게
 
 ## 참고문헌
 
-- [NextJS Redirect 문서 - 노링크](https://nextjs.org/docs/app/api-reference/config/next-config-js/redirects)
+- [NextJS Redirect 문서 - reference](https://nextjs.org/docs/app/api-reference/config/next-config-js/redirects)
