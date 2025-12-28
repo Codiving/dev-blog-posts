@@ -151,7 +151,7 @@ const env = validEnv();
 
 만약 잘못된 값을 넣으면 어떻게 될까요? 나머지 값은 잘 들어갔고 아래 2개의 값이 잘못 들어갔다고 가정해보겠습니다.
 
-```env
+```bash
 NEXT_PUBLIC_KEY=""
 NEXT_PUBLIC_COUNTRY="Korea2"
 ```
