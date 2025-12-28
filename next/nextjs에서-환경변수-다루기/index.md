@@ -17,4 +17,33 @@ thumbnail: ./thumb.png
 const key = process.env.key;
 // test
 const jey = 2;
+
+// 타입스크립트
+```
+
+```text title="AAA" showLineNumbers caption="코드 블록 하단 caption"
+// string | undefined
+const key = process.env.key;
+// test
+const jey = 2;
+
+// 텍스트로 적었음
+```
+
+```json
+// string | undefined
+[
+  {
+    "a": "asd"
+  }
+]
+
+// json
+```
+
+```ts title="AAA" showLineNumbers caption="코드 블록 하단 caption"
+// string | undefined
+const key = process.env.key;
+// test
+const jey = 2;
 ```
