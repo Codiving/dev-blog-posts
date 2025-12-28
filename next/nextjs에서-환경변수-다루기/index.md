@@ -12,7 +12,7 @@ tags:
 thumbnail: ./thumb.png
 ---
 
-```ts filename="TS"
+```ts title="AAA" filename="TS"
 // string | undefined
 const key = process.env.key;
 // test
