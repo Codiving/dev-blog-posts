@@ -1,5 +1,15 @@
 ---
-title: Next.js에서 환경변수 다루기
+title: "Next.js에서 환경변수 다루기"
+date: "2025-04-20"
+keywords:
+  [
+    "NextJS",
+    "NextJS env",
+    "NextJS environment",
+    "NextJS 환경변수",
+    "NextJS 환경변수 타입",
+    "NextJS 환경변수 안정성"
+  ]
 description: NextJS에서 환경변수 안정성 있게 다루는 방법
 date: '2025-04-20'
 tags:
@@ -28,7 +38,7 @@ Next.js에서 **환경변수**를 사용할 때 다음과 같은 문제가 발�
 
 ### 타입 추론 불가 및 불필요한 처리
 
-```ts title="TS"
+```ts filename="TS"
 // string | undefined
 const key = process.env.key;
 ```
@@ -94,12 +104,12 @@ const schema = z.object({
     .nonempty("api 값은 필수 값입니다.")
     .url()
     .refine((val: string) => /\.[a-z]+$/.test(new URL(val).hostname), {
-      message: "api 값이 유효한 도메인이 아님",
+      message: "api 값이 유효한 도메인이 아님"
     }),
   count: z.number(),
   country: z.enum(["Korea", "Japan", "China"] as const, {
-    errorMap: () => ({ message: "country 값이 유효하지 않음" }),
-  }),
+    errorMap: () => ({ message: "country 값이 유효하지 않음" })
+  })
 });
 ```
 
@@ -112,7 +122,7 @@ const envObject = {
   key: process.env.NEXT_PUBLIC_KEY,
   api: process.env.NEXT_PUBLIC_API,
   count: Number(process.env.NEXT_PUBLIC_COUNT),
-  country: process.env.NEXT_PUBLIC_COUNTRY,
+  country: process.env.NEXT_PUBLIC_COUNTRY
 };
 ```
 
@@ -179,19 +189,19 @@ const schema = z.object({
     .nonempty("api 값은 필수 값입니다.")
     .url()
     .refine((val: string) => /\.[a-z]+$/.test(new URL(val).hostname), {
-      message: "api 값이 유효한 도메인이 아님",
+      message: "api 값이 유효한 도메인이 아님"
     }),
   count: z.number(),
   country: z.enum(["Korea", "Japan", "China"] as const, {
-    errorMap: () => ({ message: "country 값이 유효하지 않음" }),
-  }),
+    errorMap: () => ({ message: "country 값이 유효하지 않음" })
+  })
 });
 
 const envObject = {
   key: process.env.NEXT_PUBLIC_KEY,
   api: process.env.NEXT_PUBLIC_API,
   count: process.env.NEXT_PUBLIC_COUNT,
-  country: process.env.NEXT_PUBLIC_COUNTRY,
+  country: process.env.NEXT_PUBLIC_COUNTRY
 };
 
 const validEnv = () => {
