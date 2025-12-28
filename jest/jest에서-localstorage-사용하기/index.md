@@ -1,16 +1,13 @@
 ---
-title: "Jest에서 localStorage 사용하기"
-date: "2025-04-15"
-keywords:
-  [
-    "Jest",
-    "Jest localStorage",
-    "Jest sessionStorage",
-    "Jest 로컬스토리지",
-    "Jest 세션스토리지",
-  ]
-description: Jest에서 로컬스토리지, 세션스토리지 사용하는 방법
-summary: 자바스크립트로 테스트 코드를 작성할 때 Jest를 많이 사용합니다. Jest는 자바스크립트 테스트 환경으로 널리 사용되지만, 실행 환경이 브라우저가 아닌 Node.js이기 때문에 localStorage나 sessionStorage를 사용하는 코드에서 다음과 같은 오류가 발생할 수 있습니다. 이는 Node.js 환경에는 브라우저의 Web API인 localStorage와 sessionStorage가 기본적으로 존재하지 않기 때문입니다.
+title: Jest에서 localStorage 사용하기
+description: 'Jest에서 로컬스토리지, 세션스토리지 사용하는 방법'
+date: '2025-04-15'
+tags:
+  - Jest
+  - Jest localStorage
+  - Jest sessionStorage
+  - Jest 로컬스토리지
+  - Jest 세션스토리지
 thumbnail: ./thumb.png
 ---
 
