@@ -12,7 +12,7 @@ tags:
 thumbnail: ./thumb.png
 ---
 
-```ts title="AAA" filename="TS"
+```ts title="AAA" showLineNumbers caption="코드 블록 하단 caption"
 // string | undefined
 const key = process.env.key;
 // test
