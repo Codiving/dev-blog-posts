@@ -12,7 +12,7 @@ keywords:
   ]
 description: NextJS에서 환경변수 안정성 있게 다루는 방법
 summary: React.js와 Next.js 모두 환경변수를 사용할 수 있습니다. 본 글에서는 Next.js 개발 환경을 전제로 설명하겠습니다. React.js도 동일하게 진행하시면 됩니다. Next.js에서 환경변수를 사용할 때 다음과 같은 문제가 발생합니다. 정확한 타입 추론이 어려움 불필요한 코드 추가 필요
-thumbnail: thumb.png
+thumbnail: ./thumb.png
 ---
 
 # Next.js에서 환경변수 다루기
@@ -143,7 +143,7 @@ const env = validEnv();
 <div style={{ position: "relative", height: "200px" }}>
   <Image
     src={
-      "https://raw.githubusercontent.com/Codiving/dev-blog-posts/main/%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D/Next/Next.js%EC%97%90%EC%84%9C%20%ED%99%98%EA%B2%BD%EB%B3%80%EC%88%98%20%EB%8B%A4%EB%A3%A8%EA%B8%B0/1.png"
+      "./1.png"
     }
     alt="Image 1"
     layout="fill"

@@ -12,7 +12,7 @@ keywords:
   ]
 description: GraphQL에서 Date 타입 다루는 방법.
 summary: GraphQL에서는 Date 타입을 기본으로 제공하지 않기 때문에, 서버에서 Date 값을 받아도 실제로는 string으로 처리되는 문제가 발생합니다. 특히 TypeScript 환경에서는 이로 인해 타입 혼란과 런타임 오류가 발생할 수 있습니다. 이 문제를 깔끔하게 해결하는 방법을 소개합니다.
-thumbnail: thumb.png
+thumbnail: ./thumb.png
 ---
 
 # GraphQL에서 Date 타입 다루기
