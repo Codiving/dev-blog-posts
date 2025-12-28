@@ -31,6 +31,8 @@ Next.js에서 **환경변수**를 사용할 때 다음과 같은 문제가 발�
 ```ts filename="TS"
 // string | undefined
 const key = process.env.key;
+// test
+const jey = 2;
 ```
 
 위와 같이 사용할 경우 `process.env.key`는 `string | undefined` 타입이 됩니다.
