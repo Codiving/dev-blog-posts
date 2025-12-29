@@ -1,7 +1,7 @@
 ---
 title: MinIO 버킷 내 특정 객체 Public으로 설정하기
 description: MinIO 버킷 내 특정 객체 Public으로 설정하는 방법
-date: '2025-09-18'
+date: "2025-09-18"
 tags:
   - MinIO
   - 미니오
@@ -20,12 +20,12 @@ thumbnail: ./thumb.png
 
 ## Public 변경 명령어
 
-```text title="command"
+```bash title="command"
 mc anonymous set download <ALIAS>/<BUCKET>/<OBJECT>
 ```
 
 예를들어, `myminio` alias의 `dev` 버킷에 있는 `documents/term.pdf` 파일을 `Public`으로 변경하고 싶다면 아래 명령어를 사용하여 접근 권한을 변경해주시면 됩니다.
 
-```text title="command"
+```bash title="command"
 mc anonymous set download myminio/dev/documents/term.pdf
 ```
